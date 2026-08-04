@@ -10,6 +10,7 @@ import pandas as pd
 import xarray as xr
 from loguru import logger
 
+from .config import NowcastConfig
 from .geospatial import parse_bbox
 
 
@@ -71,19 +72,20 @@ def validate_config(config: dict[str, Any], dataset_name: str) -> None:
 def validate_nowcast_config(nowcast_config: NowcastConfig) -> None:
     """Validate that the options selected for the nowcast config are valid.
 
-    Checks the nowcast config created from imported environment variables.
+    Checks the nowcast config for validity.
     Exits immediately for invalid choices.
 
     Args:
         nowcast_config: Instance of the NowcastConfig class
-        loaded from environment variables in config.py.
+        defined in config.py.
 
     Raises:
         SystemExit: If any invalid choice is detected.
     """
-    if nowcast_config.ens_members != 1:
+    if nowcast_config.ens_members <= 0:
         logger.error(
-            f"Invalid nowcast configuration: Currently, only ens_members=1 is supported. "
+            f"Invalid nowcast configuration: Number of ensemble members "
+            f"must be greater than 0. "
             f"Current value: {nowcast_config.ens_members}. Exiting.\n"
         )
         sys.exit(1)
