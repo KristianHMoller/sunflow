@@ -86,9 +86,8 @@ def probabilistic_advection_forecast(
         beta: von Mises noise strength on motion field angle.
 
     Returns:
-        Forecast array of shape (ensemble, n_steps, lat, lon).
-        If the underlying model returns a deterministic 3-D array
-        (n_steps, lat, lon), a singleton ensemble axis is prepended.
+        Forecast array of shape (n_steps, lat, lon) for deterministic forecasts
+        and (ensemble, n_steps, lat, lon) for multi-member ensemble forecasts.
     """
 
     # Initialize ProbabilisticAdvection with configured noise settings.
@@ -100,14 +99,6 @@ def probabilistic_advection_forecast(
     )
     # Run probabilistic advection using the correct method name
     forecast = pa.maps_forecast(n_steps, ratio_data, motion_field)
-
-    # Keep a consistent 4-D layout: [ensemble, time, lat, lon].
-    if forecast.ndim == 3:
-        forecast = forecast[np.newaxis, :, :, :]
-    elif forecast.ndim != 4:
-        raise ValueError(
-            "Forecast must have shape (time, lat, lon) or " "(ensemble, time, lat, lon)."
-        )
 
     return forecast
 

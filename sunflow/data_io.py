@@ -538,9 +538,9 @@ def save_forecast(
         if forecast.ndim != 4:
             raise ValueError("forecast must have shape (ensemble, time, lat, lon).")
 
-        assert forecast.shape[0] == nowcast_config.ensemble_members, (
+        assert forecast.shape[0] == nowcast_config.ens_members, (
             f"Forecast ensemble size {forecast.shape[0]} does not match "
-            f"expected {nowcast_config.ensemble_members} from config."
+            f"expected {nowcast_config.ens_members} from config."
         )
         ens_members = forecast.shape[0]
         data_vars = {

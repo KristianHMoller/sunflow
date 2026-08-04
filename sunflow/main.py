@@ -7,6 +7,7 @@ from datetime import datetime, timedelta, timezone
 from enum import Enum
 
 import isodate
+import numpy as np
 import yaml
 from loguru import logger
 from pysteps.motion.lucaskanade import dense_lucaskanade
@@ -339,6 +340,14 @@ def run_nowcast(
         alpha=nowcast_config.alpha,
         beta=nowcast_config.beta,
     )
+
+    # Keep a consistent 4-D layout: [ensemble, time, lat, lon].
+    if ratio_forecast.ndim == 3:
+        ratio_forecast = ratio_forecast[np.newaxis, :, :, :]
+    elif ratio_forecast.ndim != 4:
+        raise ValueError(
+            "Forecast must have shape (time, lat, lon) or " "(ensemble, time, lat, lon)."
+        )
 
     input_latitudes = latitudes
     input_longitudes = longitudes
