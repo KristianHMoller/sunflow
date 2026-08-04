@@ -519,7 +519,7 @@ def save_forecast(
             elif values.shape != first_shape:
                 raise ValueError("All statistic arrays must share the same shape")
 
-            variable_name = f"GHI_probabilistic_advection_{statistic}"
+            variable_name = f"{statistic}_GHI_probabilistic_advection"
             data_vars[variable_name] = (
                 ["ensemble", "time", "lat", "lon"],
                 values,
