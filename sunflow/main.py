@@ -391,14 +391,14 @@ def run_nowcast(
 
     # Validate clearsky data
     try:
-        validate_clearsky_completeness(clearsky_data, previous_day_time_steps)
+        validate_clearsky_completeness(clearsky_data, all_clearsky_time_steps)
     except MissingClearskyDataError as e:
         raise RuntimeError(f"Missing clearsky data: {e}") from e
 
     expected_spatial_shape = (len(latitudes), len(longitudes))
     validate_clearsky_shapes(
         clearsky_data,
-        previous_day_time_steps,
+        all_clearsky_time_steps,
         expected_spatial_shape,
         config["nc_variable_names"],
     )
