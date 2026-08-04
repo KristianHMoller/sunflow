@@ -340,6 +340,22 @@ def run_nowcast(
         beta=nowcast_config.beta,
     )
 
+    input_latitudes = latitudes
+    input_longitudes = longitudes
+
+    ratio_data, _, _ = crop_forecast_to_domain(
+        ratio_data,
+        input_latitudes,
+        input_longitudes,
+        domain_nowcast,
+    )
+    ratio_forecast, latitudes, longitudes = crop_forecast_to_domain(
+        ratio_forecast,
+        input_latitudes,
+        input_longitudes,
+        domain_nowcast,
+    )
+
     # Generate previous day time steps for clearsky lookup
     previous_day_time_steps = generate_time_steps(
         time_step,
@@ -359,7 +375,7 @@ def run_nowcast(
         run_mode,
         nowcast_config.max_clearsky_fallback_days,
         config,
-        domain_satellite,
+        domain_nowcast,
         dataset_name,
         domain_satellite_name,
         nowcast_config,
@@ -369,7 +385,7 @@ def run_nowcast(
     if run_mode in {"files", "s3"} and clearsky_data.sizes.get("time", 0) > 0:
         validate_dataset_covers_domain(
             clearsky_data,
-            domain_satellite,
+            domain_nowcast,
             "Clearsky dataset",
         )
 
@@ -401,34 +417,21 @@ def run_nowcast(
     )
 
     if full_ensemble:
-        output_forecast, latitudes, longitudes = crop_forecast_to_domain(
-            solar_forecast,
-            latitudes,
-            longitudes,
-            domain_nowcast,
-        )
+        output_forecast = solar_forecast
         output_mode = "full_ensemble"
         logger.info("Saving full ensemble forecast")
     else:
         if solar_forecast.shape[0] == 1:
-            output_forecast, latitudes, longitudes = crop_forecast_to_domain(
-                solar_forecast,
-                latitudes,
-                longitudes,
-                domain_nowcast,
-            )
+            output_forecast = solar_forecast
             output_mode = "deterministic"
             logger.info(
                 "Saving deterministic forecast "
                 "(single ensemble member, kept as singleton ensemble dimension)"
             )
         else:
-            output_forecast, latitudes, longitudes = compute_ensemble_statistics(
+            output_forecast = compute_ensemble_statistics(
                 solar_forecast,
                 nowcast_config.ensemble_statistics,
-                latitudes,
-                longitudes,
-                domain_nowcast,
             )
             output_mode = "ensemble_statistics"
             logger.info(

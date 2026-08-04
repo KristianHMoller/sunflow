@@ -514,7 +514,6 @@ def save_forecast(
                 raise ValueError(
                     "Each statistic array must have shape " "(ensemble, time, lat, lon)."
                 )
-
             if first_shape is None:
                 first_shape = values.shape
             elif values.shape != first_shape:

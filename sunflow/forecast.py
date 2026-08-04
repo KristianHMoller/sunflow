@@ -5,7 +5,7 @@ import numpy as np
 import xarray as xr
 from Models.ProbabilisticAdvection import ProbabilisticAdvection
 
-from .geospatial import crop_forecast_to_domain, get_coordinates
+from .geospatial import get_coordinates
 
 
 def preprocess_data(
@@ -86,7 +86,9 @@ def probabilistic_advection_forecast(
         beta: von Mises noise strength on motion field angle.
 
     Returns:
-        Forecast array of shape (n_steps, lat, lon).
+        Forecast array of shape (ensemble, n_steps, lat, lon).
+        If the underlying model returns a deterministic 3-D array
+        (n_steps, lat, lon), a singleton ensemble axis is prepended.
     """
 
     # Initialize ProbabilisticAdvection with configured noise settings.
@@ -98,6 +100,14 @@ def probabilistic_advection_forecast(
     )
     # Run probabilistic advection using the correct method name
     forecast = pa.maps_forecast(n_steps, ratio_data, motion_field)
+
+    # Keep a consistent 4-D layout: [ensemble, time, lat, lon].
+    if forecast.ndim == 3:
+        forecast = forecast[np.newaxis, :, :, :]
+    elif forecast.ndim != 4:
+        raise ValueError(
+            "Forecast must have shape (time, lat, lon) or " "(ensemble, time, lat, lon)."
+        )
 
     return forecast
 
@@ -126,8 +136,9 @@ def multiply_clearsky(
             NetCDF variable name in the datasets.
 
     Returns:
-        Solar irradiance forecast array with the same shape as
-        ratio_forecast, in W m⁻².
+        Solar irradiance forecast array with dimensions [ensemble, n_steps, lat, lon] if
+        ratio_forecast has an ensemble dimension, or [1, n_steps, lat, lon] if not,
+        in W m⁻².
 
     Raises:
         RuntimeError: If clearsky data is missing for any forecast timestep.
@@ -222,57 +233,24 @@ def prepend_t0(
 def compute_ensemble_statistics(
     forecast: np.ndarray,
     statistics: list[str],
-    latitudes: np.ndarray,
-    longitudes: np.ndarray,
-    domain_nowcast: str,
 ) -> dict[str, np.ndarray]:
     """Compute requested statistics over ensemble members (axis 0)."""
     computed: dict[str, np.ndarray] = {}
     for statistic in statistics:
         match statistic:
             case "median":
-                computed["median"], latitudes, longitudes = crop_forecast_to_domain(
-                    np.median(forecast, axis=0, keepdims=True),
-                    latitudes,
-                    longitudes,
-                    domain_nowcast,
-                )
+                computed["median"] = np.median(forecast, axis=0, keepdims=True)
             case "mean":
-                computed["mean"], latitudes, longitudes = crop_forecast_to_domain(
-                    np.mean(forecast, axis=0, keepdims=True),
-                    latitudes,
-                    longitudes,
-                    domain_nowcast,
-                )
+                computed["mean"] = np.mean(forecast, axis=0, keepdims=True)
             case "p10":
-                computed["p10"], latitudes, longitudes = crop_forecast_to_domain(
-                    np.percentile(forecast, 10, axis=0, keepdims=True),
-                    latitudes,
-                    longitudes,
-                    domain_nowcast,
-                )
+                computed["p10"] = np.percentile(forecast, 10, axis=0, keepdims=True)
             case "p25":
-                computed["p25"], latitudes, longitudes = crop_forecast_to_domain(
-                    np.percentile(forecast, 25, axis=0, keepdims=True),
-                    latitudes,
-                    longitudes,
-                    domain_nowcast,
-                )
+                computed["p25"] = np.percentile(forecast, 25, axis=0, keepdims=True)
             case "p75":
-                computed["p75"], latitudes, longitudes = crop_forecast_to_domain(
-                    np.percentile(forecast, 75, axis=0, keepdims=True),
-                    latitudes,
-                    longitudes,
-                    domain_nowcast,
-                )
+                computed["p75"] = np.percentile(forecast, 75, axis=0, keepdims=True)
             case "p90":
-                computed["p90"], latitudes, longitudes = crop_forecast_to_domain(
-                    np.percentile(forecast, 90, axis=0, keepdims=True),
-                    latitudes,
-                    longitudes,
-                    domain_nowcast,
-                )
+                computed["p90"] = np.percentile(forecast, 90, axis=0, keepdims=True)
             case _:  # Defensive check; config parsing validates these values.
                 raise ValueError(f"Unsupported ensemble statistic: {statistic}")
 
-    return computed, latitudes, longitudes
+    return computed
