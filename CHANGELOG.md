@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.2.0]
+
 ### Added
 
 - Added support for using a different, smaller output domain than the satellite input domain [!10](https://github.com/dmidk/sunflow/pull/10), @KristianHMoller
