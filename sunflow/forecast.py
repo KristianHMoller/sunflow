@@ -203,10 +203,18 @@ def prepend_t0(
         Array of shape (ensemble, forecast_time + 1, lat, lon)
         with the analysis field inserted at index 0 along the time axis.
     """
-    # Prepend timestep 0: current observation (ratio_data[-1]) × clearsky at t=0
+    # Prepend timestep 0: current observation (ratio_data[-1]) × clearsky at t=0.
+    # Assumes ratio_data and clearsky_data were prepared for the same spatial domain.
     sds_cs_t0 = clearsky_data.sel(time=clearsky_t0_time.replace(tzinfo=None))[
         config["nc_variable_names"]["sds_cs"]
     ].values
+    if ratio_data[-1].shape != sds_cs_t0.shape:
+        raise ValueError(
+            "Spatial shape mismatch for t0 prepend: "
+            f"ratio_data[-1] has shape {ratio_data[-1].shape}, "
+            f"but clearsky t0 has shape {sds_cs_t0.shape}. "
+            "Ensure both inputs are fetched/cropped for the same nowcast domain."
+        )
     solar_t0 = ratio_data[-1] * sds_cs_t0
 
     # Broadcast the same t=0 clearsky-based analysis field to all ensembles.
