@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.2.0]
+
 ### Added
 
 - Added support for running an ensemble. Default output is ensemble statistics, but --full_ensemble can be specified [!17](https://github.com/dmidk/sunflow/pull/17), @KristianHMoller
