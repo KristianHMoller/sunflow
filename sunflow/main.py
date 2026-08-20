@@ -24,6 +24,7 @@ from .data_io import (
 from .downloaders import download_past_data
 from .forecast import (
     compute_ensemble_statistics,
+    make_pvlib_clearsky_dataset,
     multiply_clearsky,
     prepend_t0,
     preprocess_data,
@@ -33,6 +34,7 @@ from .geospatial import (
     check_solar_elevation,
     crop_forecast_to_domain,
     domain_contains,
+    get_coordinates,
     resolve_domain_bbox,
     validate_dataset_covers_domain,
 )
@@ -244,6 +246,11 @@ def run_nowcast(
     """
     time_step_str = time_step.strftime("%Y-%m-%dT%H:%M:%SZ")
     logger.info(f"--- Running nowcast for {time_step_str} ---")
+    nc_variable_names = config["nc_variable_names"].copy()
+    clearsky_config = config.get(
+        "clearsky",
+        {"method": "file", "path": config["filename_format"]},
+    )
 
     # Fetch current data (with retry loop in operational mode)
     fetch_current_data_with_retry(
@@ -260,9 +267,14 @@ def run_nowcast(
 
     # Check solar elevation
     try:
-        solar_elevation = check_solar_elevation(time_step)
-        logger.info(f"Solar elevation: {solar_elevation:.2f} degrees")
-        if solar_elevation < 1:
+        lon_min, lat_min, lon_max, lat_max = map(float, domain_satellite.split(","))
+        solar_elevation = max(
+            check_solar_elevation(time_step, lat=lat, lon=lon)
+            for lat in (lat_min, lat_max)
+            for lon in (lon_min, lon_max)
+        )
+        logger.info(f"Maximum corner solar elevation: {solar_elevation:.2f} degrees")
+        if solar_elevation < nowcast_config.min_solar_elevation_degrees:
             reason = "sun too low"
             logger.warning(f"{reason.capitalize()}. Skipping.\n")
             return RunResult(
@@ -319,10 +331,36 @@ def run_nowcast(
     if run_mode in {"files", "s3"}:
         validate_dataset_covers_domain(data, domain_satellite, "Input dataset")
 
+    if clearsky_config["method"] == "pvlib":
+        latitudes, longitudes = get_coordinates(data)
+        data = data.merge(
+            make_pvlib_clearsky_dataset(
+                past_time_steps,
+                latitudes,
+                longitudes,
+                nc_variable_names["sds_cs"],
+            )
+        )
+    elif clearsky_config["path"] != config["filename_format"]:
+        logger.info("Loading separate clearsky data for past observations...")
+        clearsky_data = fetch_clearsky_with_fallback(
+            past_time_steps,
+            run_mode,
+            nowcast_config.max_clearsky_fallback_days,
+            clearsky_config["path"],
+            config,
+            domain_nowcast,
+            dataset_name,
+            domain_satellite_name,
+            nowcast_config,
+            s3_config,
+        )
+        data = data.merge(clearsky_data[[nc_variable_names["sds_cs"]]])
+
     # Preprocess
     logger.info("Preprocessing data...")
     ratio_data, latitudes, longitudes = preprocess_data(
-        data, past_time_steps, config["nc_variable_names"]
+        data, past_time_steps, nc_variable_names
     )
 
     # Validate data shape
@@ -378,19 +416,29 @@ def run_nowcast(
     clearsky_t0_time = time_step - timedelta(days=1)
     all_clearsky_time_steps = [clearsky_t0_time] + previous_day_time_steps
 
-    # Fetch clearsky data with fallback to earlier days if a file is missing
-    logger.info("Fetching clearsky data...")
-    clearsky_data = fetch_clearsky_with_fallback(
-        all_clearsky_time_steps,
-        run_mode,
-        nowcast_config.max_clearsky_fallback_days,
-        config,
-        domain_nowcast,
-        dataset_name,
-        domain_satellite_name,
-        nowcast_config,
-        s3_config,
-    )
+    if clearsky_config["method"] == "pvlib":
+        logger.info("Generating pvlib clearsky data...")
+        clearsky_data = make_pvlib_clearsky_dataset(
+            all_clearsky_time_steps,
+            latitudes,
+            longitudes,
+            nc_variable_names["sds_cs"],
+        )
+    else:
+        # Fetch clearsky data with fallback to earlier days if a file is missing
+        logger.info("Fetching clearsky data...")
+        clearsky_data = fetch_clearsky_with_fallback(
+            all_clearsky_time_steps,
+            run_mode,
+            nowcast_config.max_clearsky_fallback_days,
+            clearsky_config["path"],
+            config,
+            domain_nowcast,
+            dataset_name,
+            domain_satellite_name,
+            nowcast_config,
+            s3_config,
+        )
 
     if run_mode in {"files", "s3"} and clearsky_data.sizes.get("time", 0) > 0:
         validate_dataset_covers_domain(
@@ -410,7 +458,7 @@ def run_nowcast(
         clearsky_data,
         all_clearsky_time_steps,
         expected_spatial_shape,
-        config["nc_variable_names"],
+        nc_variable_names,
     )
 
     # Multiply by clearsky to get actual solar irradiance
@@ -419,7 +467,7 @@ def run_nowcast(
         ratio_forecast,
         clearsky_data,
         previous_day_time_steps,
-        config["nc_variable_names"],
+        nc_variable_names,
     )
 
     solar_forecast = prepend_t0(

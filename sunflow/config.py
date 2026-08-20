@@ -80,6 +80,7 @@ class NowcastConfig:
     max_waiting_time_minutes: int
     satellite_data_directory: str
     max_clearsky_fallback_days: int
+    min_solar_elevation_degrees: float
     ensemble_statistics: list[str]
 
     @classmethod
@@ -98,6 +99,7 @@ class NowcastConfig:
         - MAX_WAITING_TIME_MINUTES (default: 27)
         - SATELLITE_DATA_DIRECTORY (default: .)
         - MAX_CLEARSKY_FALLBACK_DAYS (default: 3)
+        - MIN_SOLAR_ELEVATION_DEGREES (default: 6)
         - ENSEMBLE_STATISTICS (default: median,mean,p10,p25,p75,p90)
         """
 
@@ -129,6 +131,9 @@ class NowcastConfig:
             max_waiting_time_minutes=int(os.getenv("MAX_WAITING_TIME_MINUTES", "27")),
             satellite_data_directory=os.getenv("SATELLITE_DATA_DIRECTORY", "."),
             max_clearsky_fallback_days=int(os.getenv("MAX_CLEARSKY_FALLBACK_DAYS", "3")),
+            min_solar_elevation_degrees=float(
+                os.getenv("MIN_SOLAR_ELEVATION_DEGREES", "6")
+            ),
             ensemble_statistics=statistics,
         )
 

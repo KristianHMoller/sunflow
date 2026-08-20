@@ -107,6 +107,7 @@ podman run -it --rm --entrypoint="" sunflow bash
 | `INPUT_DATA_FREQUENCY_MINUTES` | `15` | Data frequency (minutes) |
 | `MAX_WAITING_TIME_MINUTES` | `27` | Maximum wait time for data (minutes) |
 | `MAX_CLEARSKY_FALLBACK_DAYS` | `3` | Days back to search for fallback clear-sky data |
+| `MIN_SOLAR_ELEVATION_DEGREES` | `6` | Minimum maximum-corner solar elevation required to run |
 | `ENSEMBLE_STATISTICS` | `median,mean,p10,p25,p75,p90` | Comma-separated list of statistics for ensemble output. Allowed: `median`, `mean`, `p10`, `p25`, `p75`, `p90` (aliases `10th_percentile`, `25th_percentile`, `75th_percentile`, `90th_percentile` are accepted). |
 
 #### Data Source Configuration
