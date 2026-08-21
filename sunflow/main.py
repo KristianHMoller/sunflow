@@ -238,6 +238,7 @@ def run_nowcast(
         domain_satellite_name: Domain identifier used for input filenames.
         nowcast_config: NowcastConfig object.
         s3_config: S3Config object.
+        clearsky_config: Clearsky configuration dict.
         full_ensemble: If True, save all ensemble members. If False,
             save configured ensemble statistics over ensemble members.
         custom_time: If True, skip the retry wait loop on missing data.
