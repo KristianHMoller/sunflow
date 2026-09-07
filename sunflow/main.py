@@ -114,7 +114,7 @@ def parse_arguments() -> argparse.Namespace:
     )
     parser.add_argument(
         "--dataset",
-        choices=["KNMI", "DWD"],
+        choices=["KNMI", "DWD", "MTG", "MTG_pvlib"],
         default="KNMI",
         help="Choose dataset: Currently, only KNMI and DWD data are supported "
         "(default: KNMI)",
