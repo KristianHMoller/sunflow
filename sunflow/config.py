@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Self
 
@@ -84,8 +85,15 @@ class NowcastConfig:
     ensemble_statistics: list[str]
 
     @classmethod
-    def from_env(cls, ensemble_members: int = 1) -> Self:
+    def from_env(
+        cls,
+        ensemble_members: int = 1,
+        overrides: Mapping[str, object] | None = None,
+    ) -> Self:
         """Load nowcast configuration from environment variables with defaults.
+
+        Optional ``overrides`` can provide fallback values (for example, from YAML).
+        Environment variables always take priority over ``overrides``.
 
         Reads the following environment variables:
 
@@ -103,6 +111,25 @@ class NowcastConfig:
         - ENSEMBLE_STATISTICS (default: median,mean,p10,p25,p75,p90)
         """
 
+        overrides = overrides or {}
+
+        def _get_value(name: str, default: str) -> str:
+            env_value = os.getenv(name)
+            if env_value is not None:
+                return env_value
+
+            override_value = overrides.get(name.lower())
+            if override_value is None:
+                return default
+
+            if name == "ENSEMBLE_STATISTICS":
+                if isinstance(override_value, str):
+                    return override_value
+                if isinstance(override_value, (list, tuple)):
+                    return ",".join(str(item) for item in override_value)
+
+            return str(override_value)
+
         ens_members = ensemble_members
         # Reference for default noise values:
         # A. Carpentieri, D. Folini, D. Nerini, S. Pulkkinen, M. Wild, A. Meyer,
@@ -112,27 +139,27 @@ class NowcastConfig:
         default_alpha = 0.0 if ens_members == 1 else 9.23
         default_beta = 0.0 if ens_members == 1 else 0.15
         statistics = _parse_ensemble_statistics(
-            os.getenv("ENSEMBLE_STATISTICS", DEFAULT_ENSEMBLE_STATISTICS)
+            _get_value("ENSEMBLE_STATISTICS", DEFAULT_ENSEMBLE_STATISTICS)
         )
 
         return cls(
-            nowcast_directory=os.getenv("NOWCAST_DIRECTORY", "."),
+            nowcast_directory=_get_value("NOWCAST_DIRECTORY", "."),
             ens_members=ens_members,
-            alpha=float(os.getenv("ALPHA", str(default_alpha))),
-            beta=float(os.getenv("BETA", str(default_beta))),
-            past_steps=int(os.getenv("PAST_STEPS", "4")),
-            future_steps=int(os.getenv("FUTURE_STEPS", "24")),
+            alpha=float(_get_value("ALPHA", str(default_alpha))),
+            beta=float(_get_value("BETA", str(default_beta))),
+            past_steps=int(_get_value("PAST_STEPS", "4")),
+            future_steps=int(_get_value("FUTURE_STEPS", "24")),
             input_data_availability_delay_minutes=int(
-                os.getenv("INPUT_DATA_AVAILABILITY_DELAY_MINUTES", "24")
+                _get_value("INPUT_DATA_AVAILABILITY_DELAY_MINUTES", "24")
             ),
             input_data_frequency_minutes=int(
-                os.getenv("INPUT_DATA_FREQUENCY_MINUTES", "15")
+                _get_value("INPUT_DATA_FREQUENCY_MINUTES", "15")
             ),
-            max_waiting_time_minutes=int(os.getenv("MAX_WAITING_TIME_MINUTES", "27")),
-            satellite_data_directory=os.getenv("SATELLITE_DATA_DIRECTORY", "."),
-            max_clearsky_fallback_days=int(os.getenv("MAX_CLEARSKY_FALLBACK_DAYS", "3")),
+            max_waiting_time_minutes=int(_get_value("MAX_WAITING_TIME_MINUTES", "27")),
+            satellite_data_directory=_get_value("SATELLITE_DATA_DIRECTORY", "."),
+            max_clearsky_fallback_days=int(_get_value("MAX_CLEARSKY_FALLBACK_DAYS", "3")),
             min_solar_elevation_degrees=float(
-                os.getenv("MIN_SOLAR_ELEVATION_DEGREES", "6")
+                _get_value("MIN_SOLAR_ELEVATION_DEGREES", "6")
             ),
             ensemble_statistics=statistics,
         )

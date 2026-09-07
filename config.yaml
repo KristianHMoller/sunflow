@@ -42,6 +42,7 @@ MTG:
     sds: GHI
     sds_cs: CSR
   filename_format: "GHI/GHI{year}{month}{day}{hour}{minute}.nc"
+  input_data_frequency_minutes: 10
   clearsky:
     method: file
     path: "CSR/CSR{year}{month}{day}{hour}{minute}.nc"
@@ -51,5 +52,6 @@ MTG_pvlib:
     sds: GHI
     sds_cs: GHI_clearsky
   filename_format: "GHI/GHI{year}{month}{day}{hour}{minute}.nc"
+  input_data_frequency_minutes: 10
   clearsky:
     method: pvlib
