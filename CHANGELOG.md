@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Added `{second}` and `{munite}` as a filename formatting variable [!15](https://github.com/dmidk/sunflow/pull/15), @JoachimKoenigslieb
+- Added `{second}` and `{minute}` as a filename formatting variable [!15](https://github.com/dmidk/sunflow/pull/15), @JoachimKoenigslieb
 - Added a `clearsky` config object which can load clear-sky data from files via `clearsky.path` or generate it with `pvlib` via the `simplified_solis` method [!15](https://github.com/dmidk/sunflow/pull/15), @JoachimKoenigslieb
 - Added `MIN_SOLAR_ELEVATION_DEGREES` (defaulting to 6 degrees) to configure the minimum maximum-corner solar elevation required to run [!15](https://github.com/dmidk/sunflow/pull/15), @JoachimKoenigslieb
 - Added configurations to run with MTG data with either calculated or pvlib clearsky [!23](https://github.com/dmidk/sunflow/pull/15), @KristianHMoller
