@@ -114,7 +114,7 @@ def parse_arguments() -> argparse.Namespace:
     )
     parser.add_argument(
         "--dataset",
-        choices=["KNMI", "DWD"],
+        choices=["KNMI", "DWD", "MTG", "MTG_pvlib"],
         default="KNMI",
         help="Choose dataset: Currently, only KNMI and DWD data are supported "
         "(default: KNMI)",
@@ -555,11 +555,15 @@ def cli() -> None:
 
     # Load configuration
     args = parse_arguments()
-    nowcast_config = NowcastConfig.from_env(ensemble_members=args.ensemble_members)
+    dataset_name = args.dataset
+    config = yaml.safe_load(open("config.yaml"))[dataset_name]
+    nowcast_config = NowcastConfig.from_env(
+        ensemble_members=args.ensemble_members,
+        overrides=config,
+    )
     s3_config = S3Config.from_env()
 
     run_mode = args.run_mode
-    dataset_name = args.dataset
     domain_satellite_name = args.domain_satellite
     domain_satellite = resolve_domain_bbox(
         domain_satellite_name,
@@ -592,8 +596,6 @@ def cli() -> None:
             f"Got domain_satellite={domain_satellite}, "
             f"domain_nowcast={domain_nowcast}."
         )
-
-    config = yaml.safe_load(open("config.yaml"))[dataset_name]
 
     if run_mode != "s3":
         os.makedirs(nowcast_config.nowcast_directory, exist_ok=True)

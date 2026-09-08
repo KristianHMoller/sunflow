@@ -4,6 +4,7 @@ from datetime import datetime
 import numpy as np
 import pvlib
 import xarray as xr
+from loguru import logger
 from Models.ProbabilisticAdvection import ProbabilisticAdvection
 
 from .geospatial import get_coordinates
@@ -295,6 +296,7 @@ def compute_ensemble_statistics(
     statistics: list[str],
 ) -> dict[str, np.ndarray]:
     """Compute requested statistics over ensemble members (axis 0)."""
+    logger.info("Computing ensemble statistics...")
     computed: dict[str, np.ndarray] = {}
     for statistic in statistics:
         match statistic:
