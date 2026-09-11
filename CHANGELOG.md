@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Use `.expand_dims` instead of `.assign_coords` to make sure we have both time dimension and time coordinates when loading from files [!15](https://github.com/dmidk/sunflow/pull/15), @JoachimKoenigslieb
 - `check_solar_elevation` now does not assume location is in Copenhagen by default [!15](https://github.com/dmidk/sunflow/pull/15), @JoachimKoenigslieb
+- Renamed MTG and MTG_pvlib to specMAGIC_MTG and specMAGIC_MTG_pvlib, respectively [!24](https://github.com/dmidk/sunflow/pull/24), @KristianHMoller
 
 ## [v1.2.0]
 
