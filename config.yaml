@@ -37,7 +37,7 @@ DWD:
   # Supports subdirectories via path separators, e.g.: "{year}/{month}/{day}/{dataset_name}_{timestamp}_{domain_satellite_name}.nc"
   filename_format: "{dataset_name}_{timestamp}_{domain_satellite_name}.nc"
 
-MTG:
+specMAGIC_MTG:
   nc_variable_names:
     sds: GHI
     sds_cs: CSR
@@ -47,7 +47,7 @@ MTG:
     method: file
     path: "CSR/CSR{year}{month}{day}{hour}{minute}.nc"
 
-MTG_pvlib:
+specMAGIC_MTG_pvlib:
   nc_variable_names:
     sds: GHI
     sds_cs: GHI_clearsky
