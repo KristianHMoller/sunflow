@@ -120,7 +120,7 @@ def parse_arguments() -> argparse.Namespace:
         "KNMI: MSG-CPP data from KNMI\n"
         "DWD: MSG-based data from DWD\n"
         "specMAGIC_MTG: MTG-based GHI data from specMAGIC\n"
-        "specMAGIC_MTG_pvlib: MTG-based GHI from specMAGIC with pvlib clearsky",
+        "specMAGIC_MTG_pvlib: MTG-based GHI data from specMAGIC with pvlib clearsky",
     )
     parser.add_argument(
         "--domain_satellite",
