@@ -116,8 +116,11 @@ def parse_arguments() -> argparse.Namespace:
         "--dataset",
         choices=["KNMI", "DWD", "specMAGIC_MTG", "specMAGIC_MTG_pvlib"],
         default="KNMI",
-        help="Choose dataset: Currently, only KNMI and DWD data are supported "
-        "(default: KNMI)",
+        help="Dataset (default: KNMI): \n"
+        "KNMI: MSG-CPP data from KNMI\n"
+        "DWD: data from DWD\n"
+        "specMAGIC_MTG: MTG-based GHI data from specMAGIC\n"
+        "specMAGIC_MTG_pvlib: MTG-based GHI from specMAGIC with pvlib clearsky",
     )
     parser.add_argument(
         "--domain_satellite",
