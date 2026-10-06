@@ -114,10 +114,11 @@ def parse_arguments() -> argparse.Namespace:
     )
     parser.add_argument(
         "--dataset",
-        choices=["KNMI", "DWD", "specMAGIC_MTG", "specMAGIC_MTG_pvlib"],
-        default="KNMI",
-        help="Dataset (default: KNMI): \n"
-        "KNMI: MSG-CPP data from KNMI\n"
+        choices=["KNMI_MSG", "KNMI_MTG", "DWD", "specMAGIC_MTG", "specMAGIC_MTG_pvlib"],
+        default="KNMI_MSG",
+        help="Dataset (default: KNMI_MSG): \n"
+        "KNMI_MSG: MSG-CPP data from KNMI\n"
+        "KNMI_MTG: MTG-CPP data from KNMI\n"
         "DWD: MSG-based data from DWD\n"
         "specMAGIC_MTG: MTG-based GHI data from specMAGIC\n"
         "specMAGIC_MTG_pvlib: MTG-based GHI data from specMAGIC with pvlib clearsky",
@@ -235,7 +236,7 @@ def run_nowcast(
         config: Dataset configuration dict.
         domain_satellite: Domain string used for satellite input coverage.
         domain_nowcast: Domain string used for output cropping.
-        dataset_name: Name of dataset.
+        dataset_name: Name of the dataset source.
         domain_satellite_name: Domain identifier used for input filenames.
         nowcast_config: NowcastConfig object.
         s3_config: S3Config object.
@@ -244,8 +245,7 @@ def run_nowcast(
         custom_time: If True, skip the retry wait loop on missing data.
 
     Returns:
-        Output filename on success, or None if the run was skipped
-        (e.g. sun too low or missing data in a time-span run).
+        RunResult object indicating the outcome of the nowcast.
     """
     time_step_str = time_step.strftime("%Y-%m-%dT%H:%M:%SZ")
     logger.info(f"--- Running nowcast for {time_step_str} ---")
