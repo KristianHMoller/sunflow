@@ -105,7 +105,7 @@ def parse_arguments() -> argparse.Namespace:
         "--run_mode",
         choices=["download", "files", "s3"],
         default="download",
-        help="Run mode (default: download): \n"
+        help="Run mode (default: %(default)s): \n"
         "download: fetch from API. For KNMI data, this requires "
         "KNMI_API_KEY environment variable\n"
         "files: read from local files\n"
@@ -115,8 +115,8 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--dataset",
         choices=["KNMI_MSG", "KNMI_MTG", "DWD", "specMAGIC_MTG", "specMAGIC_MTG_pvlib"],
-        default="KNMI_MSG",
-        help="Dataset (default: KNMI_MSG): \n"
+        default="KNMI_MTG",
+        help="Dataset (default: %(default)s): \n"
         "KNMI_MSG: MSG-CPP data from KNMI\n"
         "KNMI_MTG: MTG-CPP data from KNMI\n"
         "DWD: MSG-based data from DWD\n"
@@ -127,7 +127,7 @@ def parse_arguments() -> argparse.Namespace:
         "--domain_satellite",
         choices=DOMAIN_CHOICES,
         default="NW_EUROPE",
-        help="Domain required for satellite input coverage (default: NW_EUROPE)",
+        help="Domain required for satellite input coverage (default: %(default)s)",
     )
     parser.add_argument(
         "--custom_domain_satellite",
@@ -172,7 +172,7 @@ def parse_arguments() -> argparse.Namespace:
         "--ensemble_members",
         type=int,
         default=1,
-        help="Number of ensemble members (default: 1)",
+        help="Number of ensemble members (default: %(default)s)",
     )
     parser.add_argument(
         "--full_ensemble",
