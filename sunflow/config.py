@@ -63,14 +63,18 @@ class S3Config:
         - S3_BUCKET (default: None)
         - S3_INPUT_PREFIX (default: satellite_data)
         - S3_OUTPUT_PREFIX (default: nowcasts)
-        - AWS_NO_VERIFY_SSL (default: unset/false; when truthy, verify_ssl=False)
+        - AWS_VERIFY_SSL (default: true; set to 0/false/no/off to disable)
         """
         return cls(
             endpoint_url=os.getenv("S3_ENDPOINT_URL", None),
             bucket=os.getenv("S3_BUCKET", None),
             input_prefix=os.getenv("S3_INPUT_PREFIX", "satellite_data"),
             output_prefix=os.getenv("S3_OUTPUT_PREFIX", "nowcasts"),
-            verify_ssl=not _env_var_is_truthy("AWS_NO_VERIFY_SSL"),
+            verify_ssl=(
+                True
+                if os.getenv("AWS_VERIFY_SSL") is None
+                else _env_var_is_truthy("AWS_VERIFY_SSL")
+            ),
         )
 
 
