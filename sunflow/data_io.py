@@ -671,10 +671,7 @@ def save_forecast_to_s3(
     logger.info(f"Saving forecast to {s3_path}")
 
     try:
-        fs = fsspec.filesystem(
-            "s3",
-            client_kwargs={"endpoint_url": s3_config.endpoint_url},
-        )
+        fs = _build_s3_filesystem(s3_config)
         # Write to BytesIO buffer first
         buffer = BytesIO()
         dataset.to_netcdf(buffer, encoding={"time": time_encoding})
