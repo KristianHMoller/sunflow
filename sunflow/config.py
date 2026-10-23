@@ -25,6 +25,11 @@ _STATISTIC_ALIASES = {
 }
 
 
+def _env_var_is_truthy(var_name: str) -> bool:
+    """Return True when env var is set to a truthy value."""
+    return os.getenv(var_name, "").strip().lower() in {"1", "true", "yes", "on"}
+
+
 # Predefined domain options
 # Format: lon_min,lat_min,lon_max,lat_max
 DOMAIN_OPTIONS: dict[str, str | None] = {
@@ -46,6 +51,7 @@ class S3Config:
     bucket: str
     input_prefix: str
     output_prefix: str
+    verify_ssl: bool = True
 
     @classmethod
     def from_env(cls) -> Self:
@@ -57,12 +63,14 @@ class S3Config:
         - S3_BUCKET (default: None)
         - S3_INPUT_PREFIX (default: satellite_data)
         - S3_OUTPUT_PREFIX (default: nowcasts)
+        - AWS_NO_VERIFY_SSL (default: unset/false; when truthy, verify_ssl=False)
         """
         return cls(
             endpoint_url=os.getenv("S3_ENDPOINT_URL", None),
             bucket=os.getenv("S3_BUCKET", None),
             input_prefix=os.getenv("S3_INPUT_PREFIX", "satellite_data"),
             output_prefix=os.getenv("S3_OUTPUT_PREFIX", "nowcasts"),
+            verify_ssl=not _env_var_is_truthy("AWS_NO_VERIFY_SSL"),
         )
 
 
