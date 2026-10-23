@@ -25,11 +25,6 @@ _STATISTIC_ALIASES = {
 }
 
 
-def _env_var_is_truthy(var_name: str) -> bool:
-    """Return True when env var is set to a truthy value."""
-    return os.getenv(var_name, "").strip().lower() in {"1", "true", "yes", "on"}
-
-
 # Predefined domain options
 # Format: lon_min,lat_min,lon_max,lat_max
 DOMAIN_OPTIONS: dict[str, str | None] = {
