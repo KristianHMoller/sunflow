@@ -15,6 +15,19 @@ from .geospatial import subset_to_bbox, validate_dataset_covers_domain
 from .validation import DataNotAvailableError
 
 
+def _build_s3_filesystem(s3_config: S3Config) -> fsspec.AbstractFileSystem:
+    """Build an S3 filesystem using SSL verification setting from config."""
+    client_kwargs: dict[str, Any] = {"endpoint_url": s3_config.endpoint_url}
+
+    if not s3_config.verify_ssl:
+        client_kwargs["verify"] = False
+        logger.warning(
+            "S3 SSL certificate verification disabled via S3Config.verify_ssl=False"
+        )
+
+    return fsspec.filesystem("s3", client_kwargs=client_kwargs)
+
+
 def fetch_current_data_with_retry(
     time_step: datetime,
     run_mode: str,
@@ -290,10 +303,7 @@ def check_current_data_existence_s3(
     logger.info(f"Checking existence of data at {s3_path}")
 
     try:
-        fs = fsspec.filesystem(
-            "s3",
-            client_kwargs={"endpoint_url": s3_config.endpoint_url},
-        )
+        fs = _build_s3_filesystem(s3_config)
         if not fs.exists(s3_path):
             raise FileNotFoundError(f"Input file not yet found in S3: {s3_path}")
 
@@ -339,10 +349,7 @@ def load_data_from_s3(
         FileNotFoundError: If any expected file does not exist in S3.
     """
     collected: list[xr.Dataset] = []
-    fs = fsspec.filesystem(
-        "s3",
-        client_kwargs={"endpoint_url": s3_config.endpoint_url},
-    )
+    fs = _build_s3_filesystem(s3_config)
 
     for time_step in time_steps:
         filename = generate_input_filename(
@@ -664,10 +671,7 @@ def save_forecast_to_s3(
     logger.info(f"Saving forecast to {s3_path}")
 
     try:
-        fs = fsspec.filesystem(
-            "s3",
-            client_kwargs={"endpoint_url": s3_config.endpoint_url},
-        )
+        fs = _build_s3_filesystem(s3_config)
         # Write to BytesIO buffer first
         buffer = BytesIO()
         dataset.to_netcdf(buffer, encoding={"time": time_encoding})
