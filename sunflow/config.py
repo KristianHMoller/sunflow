@@ -70,11 +70,8 @@ class S3Config:
             bucket=os.getenv("S3_BUCKET", None),
             input_prefix=os.getenv("S3_INPUT_PREFIX", "satellite_data"),
             output_prefix=os.getenv("S3_OUTPUT_PREFIX", "nowcasts"),
-            verify_ssl=(
-                True
-                if os.getenv("AWS_VERIFY_SSL") is None
-                else _env_var_is_truthy("AWS_VERIFY_SSL")
-            ),
+            verify_ssl=os.getenv("AWS_VERIFY_SSL", "true").strip().lower()
+            in {"1", "true", "yes", "on"},
         )
 
 
