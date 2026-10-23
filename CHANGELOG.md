@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.3.0]
+
 ### Added
 - Added `{second}` and `{minute}` as a filename formatting variable [!15](https://github.com/dmidk/sunflow/pull/15), @JoachimKoenigslieb
 - Added a `clearsky` config object which can load clear-sky data from files via `clearsky.path` or generate it with `pvlib` via the `simplified_solis` method [!15](https://github.com/dmidk/sunflow/pull/15), @JoachimKoenigslieb
