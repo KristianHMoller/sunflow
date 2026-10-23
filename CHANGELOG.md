@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `MIN_SOLAR_ELEVATION_DEGREES` (defaulting to 6 degrees) to configure the minimum maximum-corner solar elevation required to run [!15](https://github.com/dmidk/sunflow/pull/15), @JoachimKoenigslieb
 - Added configurations to run with MTG data with either calculated or pvlib clearsky [!24](https://github.com/dmidk/sunflow/pull/24), @KristianHMoller
 - Added the ability to provide more configuration parameters to config.yaml [!24](https://github.com/dmidk/sunflow/pull/24), @KristianHMoller
-- Added to option to bypass SSL verification in S3 reading [!27](https://github.com/dmidk/sunflow/pull/27), @KristianHMoller
+- Added to option to bypass SSL verification in S3 reading and writing [!27](https://github.com/dmidk/sunflow/pull/27), @KristianHMoller
 
 ### Changed
 - Use `.expand_dims` instead of `.assign_coords` to make sure we have both time dimension and time coordinates when loading from files [!15](https://github.com/dmidk/sunflow/pull/15), @JoachimKoenigslieb
