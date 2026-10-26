@@ -8,17 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Added configuration for KNMI_MTG and made it the new defualt [!26](https://github.com/dmidk/sunflow/pull/26), @KristianHMoller
+
+## [v1.3.0]
+
+### Added
 - Added `{second}` and `{minute}` as a filename formatting variable [!15](https://github.com/dmidk/sunflow/pull/15), @JoachimKoenigslieb
 - Added a `clearsky` config object which can load clear-sky data from files via `clearsky.path` or generate it with `pvlib` via the `simplified_solis` method [!15](https://github.com/dmidk/sunflow/pull/15), @JoachimKoenigslieb
 - Added `MIN_SOLAR_ELEVATION_DEGREES` (defaulting to 6 degrees) to configure the minimum maximum-corner solar elevation required to run [!15](https://github.com/dmidk/sunflow/pull/15), @JoachimKoenigslieb
-- Added configurations to run with MTG data with either calculated or pvlib clearsky [!23](https://github.com/dmidk/sunflow/pull/15), @KristianHMoller
-- Added the ability to provide more configuration parameters to config.yaml [!23](https://github.com/dmidk/sunflow/pull/15), @KristianHMoller
-- Added configuration for KNMI_MTG and made it the new defualt [!26](https://github.com/dmidk/sunflow/pull/26), @KristianHMoller
+- Added to option to bypass SSL verification in S3 reading and writing [!27](https://github.com/dmidk/sunflow/pull/27), @KristianHMoller
 
 ### Changed
 - Use `.expand_dims` instead of `.assign_coords` to make sure we have both time dimension and time coordinates when loading from files [!15](https://github.com/dmidk/sunflow/pull/15), @JoachimKoenigslieb
 - `check_solar_elevation` now does not assume location is in Copenhagen by default [!15](https://github.com/dmidk/sunflow/pull/15), @JoachimKoenigslieb
-- Renamed MTG and MTG_pvlib to specMAGIC_MTG and specMAGIC_MTG_pvlib, respectively [!24](https://github.com/dmidk/sunflow/pull/24), @KristianHMoller
+- Renamed MTG and MTG_pvlib to specMAGIC_MTG and specMAGIC_MTG_pvlib, respectively [!25](https://github.com/dmidk/sunflow/pull/25), @KristianHMoller
 
 ## [v1.2.0]
 

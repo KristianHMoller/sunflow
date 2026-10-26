@@ -126,6 +126,7 @@ podman run -it --rm --entrypoint="" sunflow bash
 | `S3_BUCKET` | None | S3 bucket name |
 | `S3_INPUT_PREFIX` | `satellite_data` | S3 prefix for input data |
 | `S3_OUTPUT_PREFIX` | `nowcasts` | S3 prefix for forecast output |
+| `AWS_VERIFY_SSL` | `true` (when unset) | Verify TLS/SSL certificates for S3 connections. Set to `0`, `false`, `no`, or `off` to disable verification. |
 
 ### Volume Mounts
 
