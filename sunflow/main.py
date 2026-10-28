@@ -311,20 +311,26 @@ def run_nowcast(
     logger.info(f"Loaded {n_past} past data timesteps")
     output_warning = None
     if n_past < nowcast_config.past_steps:
-        # Use a copy so the shared config is not modified between runs
-        future_steps = scale_future_steps(
-            nowcast_config.future_steps, nowcast_config.past_steps, n_past
-        )
-        logger.warning(
-            f"Reducing past_steps from {nowcast_config.past_steps} to {n_past} and "
-            f"future_steps from {nowcast_config.future_steps} to {future_steps}."
-        )
+        if nowcast_config.scale_future_steps:
+            future_steps = scale_future_steps(
+                nowcast_config.future_steps, nowcast_config.past_steps, n_past
+            )
+        else:
+            future_steps = nowcast_config.future_steps
         output_warning = (
             f"Only {n_past} satellite images were used instead of the requested "
-            f"{nowcast_config.past_steps} because older data was unavailable. "
-            f"The number of forecast steps was reduced from "
-            f"{nowcast_config.future_steps} to {future_steps}."
+            f"{nowcast_config.past_steps} because input data was unavailable."
         )
+        if future_steps != nowcast_config.future_steps:
+            output_warning += (
+                f" The number of forecast steps was reduced from "
+                f"{nowcast_config.future_steps} to {future_steps}."
+            )
+        logger.warning(
+            f"Reducing past_steps from {nowcast_config.past_steps} to {n_past}. "
+            f"future_steps: {nowcast_config.future_steps} -> {future_steps}."
+        )
+        # Use a copy so the shared config is not modified between runs
         nowcast_config = replace(nowcast_config, future_steps=future_steps)
     if run_mode in {"files", "s3"}:
         validate_dataset_covers_domain(data, domain_satellite, "Input dataset")
