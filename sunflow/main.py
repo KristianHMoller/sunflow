@@ -309,6 +309,7 @@ def run_nowcast(
     )
     n_past = len(past_time_steps)
     logger.info(f"Loaded {n_past} past data timesteps")
+    output_warning = None
     if n_past < nowcast_config.past_steps:
         # Use a copy so the shared config is not modified between runs
         future_steps = scale_future_steps(
@@ -317,6 +318,12 @@ def run_nowcast(
         logger.warning(
             f"Reducing past_steps from {nowcast_config.past_steps} to {n_past} and "
             f"future_steps from {nowcast_config.future_steps} to {future_steps}."
+        )
+        output_warning = (
+            f"Only {n_past} satellite images were used instead of the requested "
+            f"{nowcast_config.past_steps} because older data was unavailable. "
+            f"The number of forecast steps was reduced from "
+            f"{nowcast_config.future_steps} to {future_steps}."
         )
         nowcast_config = replace(nowcast_config, future_steps=future_steps)
     if run_mode in {"files", "s3"}:
@@ -502,6 +509,7 @@ def run_nowcast(
         output_mode,
         run_mode,
         s3_config,
+        warning=output_warning,
     )
 
     logger.info(f"Nowcast completed: {filename}")

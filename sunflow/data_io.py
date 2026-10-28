@@ -600,6 +600,7 @@ def save_forecast(
     output_mode: str,
     run_mode: str = "files",
     s3_config: S3Config | None = None,
+    warning: str | None = None,
 ) -> str:
     """Save forecast data to a CF-compliant NetCDF4 file.
 
@@ -623,6 +624,8 @@ def save_forecast(
             or 'full_ensemble').
         run_mode: One of 'files' (local) or 's3'. Defaults to 'files'.
         s3_config: S3Config object; required when run_mode is 's3'.
+        warning: Optional text written as a global 'warning' attribute
+            (e.g. when fewer input images than requested were used).
 
     Returns:
         Filename (basename only) of the written NetCDF file.
@@ -731,6 +734,7 @@ def save_forecast(
             ),
             "model_version": model_version,
             **({"statistics": statistics_attr} if statistics_attr else {}),
+            **({"warning": warning} if warning else {}),
         },
     )
 
